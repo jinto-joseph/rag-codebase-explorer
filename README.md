@@ -172,7 +172,7 @@ streamlit run app.py
 
 - [Architecture](docs/architecture.md) - System design and RAG flow
 - [Benchmarks](docs/benchmarks.md) - Performance metrics and compression stats
-- [Screenshots](docs/Screenshots/README.md) - Demo queries and results
+- [Screenshots](docs/Screenshots/) - Demo queries and results
 
 ---
 
