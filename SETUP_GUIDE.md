@@ -134,16 +134,13 @@ res = openai.embeddings.create(
 ## 🐛 Troubleshooting
 
 ### "No embeddings created" Error
-**Cause:** Missing or invalid API key
+**Cause:** Model download failed or no valid files in repo
 
 **Fix:**
 ```bash
-# Verify API key is set
-echo $env:OPENAI_API_KEY  # Windows
-echo $OPENAI_API_KEY      # Mac/Linux
-
-# Re-set the key
-$env:OPENAI_API_KEY = "sk-your-key"
+# Verify internet connection for first-time model download
+# Check that repo contains .py, .js, or .ts files
+# Restart the app to retry model download
 ```
 
 ### "No files found" Error
@@ -155,12 +152,13 @@ $env:OPENAI_API_KEY = "sk-your-key"
 - Check file permissions
 
 ### Slow Loading
-**Cause:** Large repository or API rate limits
+**Cause:** Large repository or first-time model download
 
 **Solutions:**
-- Start with a small repo (10-20 files)
-- OpenAI free tier has lower rate limits
-- Upgrade to paid tier for faster processing
+- First run downloads model (~23MB, one-time only)
+- Start with a small repo (10-20 files) to test
+- Large repos (500+ files) may take 3-5 minutes
+- After initial setup, loading is fast (local processing)
 
 ### ModuleNotFoundError
 **Cause:** Missing dependencies
@@ -175,18 +173,19 @@ pip install --upgrade -r requirements.txt
 ## 💰 Cost Estimation
 
 ### Embeddings Cost
-- **Model:** text-embedding-3-small
-- **Rate:** $0.0001 per 1K tokens
-- **Average file:** 800 tokens (compressed) = $0.00008
+- **Model:** Sentence-Transformers (paraphrase-MiniLM-L3-v2)
+- **Rate:** $0 (FREE! Runs locally)
+- **Average file:** 800 tokens = **$0**
 
 ### Example Costs
 | Repo Size | Files | Total Cost |
 |-----------|-------|-----------|
-| Small | 20 | $0.002 |
-| Medium | 100 | $0.008 |
-| Large | 500 | $0.040 |
+| Small | 20 | **$0** |
+| Medium | 100 | **$0** |
+| Large | 500 | **$0** |
+| Very Large | 5000+ | **$0** |
 
-**Queries are nearly free** (~$0.000005 each)
+**Queries are FREE too!** (Everything runs locally)
 
 ---
 
