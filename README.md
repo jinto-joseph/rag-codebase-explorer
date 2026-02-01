@@ -145,21 +145,14 @@ This makes it practical for real-world developer use.
 pip install -r requirements.txt
 ```
 
-### 2. Set API Key
-```bash
-# Windows PowerShell
-$env:OPENAI_API_KEY = "your-key-here"
+**No API keys needed!** Uses FREE offline embeddings.
 
-# Linux/Mac
-export OPENAI_API_KEY="your-key-here"
-```
-
-### 3. Run the App
+### 2. Run the App
 ```bash
 streamlit run app.py
 ```
 
-### 4. Load a Repository
+### 3. Load a Repository
 - Enter the path to a local GitHub repo
 - Click "Load Repo"
 - Ask questions about the code

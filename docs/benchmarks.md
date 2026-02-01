@@ -148,16 +148,16 @@ This document contains performance metrics, token compression results, and test 
 | Large | 200-500 | 3-6 min | ~3800 |
 | Very Large | 1000+ | 10-15 min | ~3500 |
 
-*Bottleneck: OpenAI API rate limits (3000 requests/min)*
+*Bottleneck: Disk I/O during repository loading*
 
 ### Query Performance
 
 | Operation | Time | Bottleneck |
 |-----------|------|-----------|
 | FAISS vector search | <100ms | CPU |
-| OpenAI query embedding | ~500ms | Network/API |
+| Local embedding (sentence-transformers) | ~50ms | CPU |
 | Result formatting | <10ms | CPU |
-| **Total query time** | **~610ms** | **API latency** |
+| **Total query time** | **~160ms** | **CPU/Memory** |
 
 ---
 

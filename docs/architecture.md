@@ -217,17 +217,17 @@ Replace simple truncation with actual ScaleDown compression API.
 - Medium repo (100 files): ~30 seconds
 - Large repo (1000 files): ~5 minutes
 
-*Bottleneck: OpenAI API rate limits*
+*Bottleneck: Disk I/O and compression*
 
 ### Query Time
 - FAISS search: <100ms
-- OpenAI embedding API: ~500ms
-- **Total latency: ~600ms**
+- Local embedding: ~50ms
+- **Total latency: ~150ms**
 
 ### Cost per Query
-- Embedding API: $0.0001/1K tokens
-- Typical query: ~50 tokens = $0.000005
-- **Very cheap for end users**
+- Embedding: FREE (runs locally)
+- FAISS search: FREE (in-memory)
+- **Total cost: $0 (completely FREE!)**
 
 ---
 
