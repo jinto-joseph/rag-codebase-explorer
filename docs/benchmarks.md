@@ -116,26 +116,25 @@ This document contains performance metrics, token compression results, and test 
 
 ## 💰 Cost Analysis
 
-### Embedding Costs (OpenAI text-embedding-3-small)
-- **Rate:** $0.0001 per 1K tokens
-- **Average file (uncompressed):** 5000 tokens = $0.0005
-- **Average file (compressed):** 800 tokens = $0.00008
-- **Savings per file:** $0.00042 (84% reduction)
+### Embedding Costs (FREE Sentence-Transformers)
+- **Rate:** $0 (completely FREE!)
+- **Average file (uncompressed):** 5000 tokens = $0
+- **Average file (compressed):** 800 tokens = $0
+- **Total savings:** 100% - NO API COSTS!
 
 ### Query Costs
-- **Single query embedding:** ~50 tokens = $0.000005
+- **Single query embedding:** FREE (runs locally)
 - **Typical retrieval:** 3 files × 800 tokens = 2400 tokens
-- **Total context sent to LLM:** ~2450 tokens
-- **Cost with GPT-4:** ~$0.025 per query
-- **Cost with GPT-3.5-turbo:** ~$0.004 per query
+- **Vector search:** FREE (FAISS runs locally)
+- **Total cost per query:** $0 (completely FREE!)
+- **No LLM needed** - system returns compressed code directly
 
 ### Monthly Cost Estimate (100 queries/day)
-| Scenario | Without Compression | With ScaleDown | Savings |
-|----------|-------------------|---------------|---------|
-| Embeddings | $15/month | $2.40/month | **$12.60** |
-| LLM calls (GPT-4) | $75/month | $18/month | **$57** |
-| **Total** | **$90/month** | **$20.40/month** | **$69.60 (77%)** |
-
+| Scenario | With Paid APIs | With FREE Embeddings | Savings |
+|----------|----------------|---------------------|---------|  
+| Embeddings | $15/month | **$0/month** | **$15** |
+| Vector Search | N/A | **$0/month** | **FREE** |
+| **Total** | **$15+/month** | **$0/month** | **100% (FREE!)** |
 ---
 
 ## 📈 Scalability Metrics

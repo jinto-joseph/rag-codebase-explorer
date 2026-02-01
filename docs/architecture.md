@@ -31,9 +31,10 @@ The Code Documentation Navigator is built on a **Retrieval-Augmented Generation 
                            ↓
         ┌──────────────────────────────────────┐
         │   embedder.py                        │
-        │   • Calls OpenAI Embeddings API      │
-        │   • Model: text-embedding-3-small    │
-        │   • Generates 1536-dim vectors       │
+        │   • FREE Sentence-Transformers       │
+        │   • Model: paraphrase-MiniLM-L3-v2   │
+        │   • Generates 384-dim vectors        │
+        │   • No API key required!             │
         └──────────────────────────────────────┘
                            ↓
         ┌──────────────────────────────────────┐
@@ -103,11 +104,13 @@ Current implementation:
 ### 3. **embedder.py**
 **Purpose:** Convert text into vector embeddings for semantic search.
 
-- Uses OpenAI `text-embedding-3-small`
-- Dimension: 1536
-- API key from environment variable `OPENAI_API_KEY`
+- Uses FREE Hugging Face `sentence-transformers`
+- Model: `paraphrase-MiniLM-L3-v2` (23MB, cached locally)
+- Dimension: 384
+- **No API key required** - works completely offline!
+- First run downloads model, then runs locally
 
-**Why it matters:** Enables semantic (not keyword) search across code.
+**Why it matters:** Enables semantic (not keyword) search across code at ZERO cost.
 
 ---
 
@@ -166,15 +169,17 @@ Large codebases have files with 5000+ tokens. LLM context windows (even GPT-4) s
 
 ## 🔐 Security & Environment
 
-### API Key Management
-- **Do not hardcode API keys** in source files
-- Use environment variables: `OPENAI_API_KEY`
-- `.gitignore` should exclude `.env` files
+### No API Keys Required!
+- Uses **FREE offline embeddings** (Sentence-Transformers)
+- No API key management needed
+- No rate limits or costs
+- Works completely offline after initial model download
 
 ### Current Implementation
 ```python
 # embedder.py
-api_key = os.environ.get("OPENAI_API_KEY")
+from sentence_transformers import SentenceTransformer
+model = SentenceTransformer('paraphrase-MiniLM-L3-v2')  # FREE!
 ```
 
 ---
