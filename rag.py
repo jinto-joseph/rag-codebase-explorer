@@ -95,5 +95,15 @@ class CodeRAG:
             ...     print(f"{r['path']}: {r['compressed_tokens']} tokens")
         """
         qv = embed(q)
-        D, I = self.index.search(np.array([qv]).astype("float32"), 3)
-        return [self.texts[i] for i in I[0]]
+        # Request up to 3 results, but handle repos with fewer files
+        k = min(3, len(self.texts))
+        D, I = self.index.search(np.array([qv]).astype("float32"), k)
+        
+        # Remove duplicates (FAISS may return same index multiple times)
+        seen = set()
+        results = []
+        for i in I[0]:
+            if i not in seen:
+                seen.add(i)
+                results.append(self.texts[i])
+        return results
