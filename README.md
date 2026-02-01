@@ -70,11 +70,24 @@ AI Answers
 ## 🛠 Tech Stack
 
 - Python  
-- Tree-sitter  
-- ScaleDown API  
-- FAISS / Chroma  
-- OpenAI embeddings  
+- Sentence-Transformers (FREE embeddings - no API key!)
+- FAISS vector database
 - Streamlit UI  
+- Smart compression algorithms
+- Tree-sitter (planned)
+
+---
+
+## 📸 Demo
+
+![Compression Working](docs/Screenshots/03_compression_working.png)
+*Natural language code search with 65% token compression (393 → 138 tokens)*
+
+![Query Results](docs/Screenshots/05_query_authentication.png)
+*Semantic search finds relevant files instantly*
+
+![Token Statistics](docs/Screenshots/06_token_statistics.png)
+*Token reduction across multiple files*
 
 ---
 
