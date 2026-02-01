@@ -8,7 +8,7 @@ Complete setup instructions for the Code Documentation Navigator.
 
 - **Python 3.8+**
 - **pip** (Python package manager)
-- **OpenAI API key** ([Get one here](https://platform.openai.com/api-keys))
+- **No API keys required!** (Uses FREE local embeddings)
 
 ---
 
@@ -36,26 +36,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Set Up Environment Variables
-
-**Option A: Create .env file**
-```bash
-# Copy the example file
-copy .env.example .env  # Windows
-cp .env.example .env    # Mac/Linux
-
-# Edit .env and add your API key
-# OPENAI_API_KEY=sk-your-actual-key-here
-```
-
-**Option B: Set environment variable directly**
-```bash
-# Windows PowerShell
-$env:OPENAI_API_KEY = "sk-your-actual-key-here"
-
-# Mac/Linux
-export OPENAI_API_KEY="sk-your-actual-key-here"
-```
+**Note:** First run will download the FREE embedding model (~23MB). After that, it works completely offline!
 
 ---
 
@@ -86,6 +67,9 @@ This will open the web interface at `http://localhost:8501`
 ---
 
 ## 🧪 Test with Sample Queries
+
+**First run:** Downloads the FREE embedding model (~23MB, one-time only)  
+**After that:** Works completely offline with zero costs!
 
 Try these queries on your repository:
 
