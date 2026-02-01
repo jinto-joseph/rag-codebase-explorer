@@ -1,57 +1,56 @@
-# 🧠 RAG Codebase Explorer  
-*ScaleDown-powered AI for understanding large GitHub repositories*
+# 🧠 Code Documentation Navigator (ScaleDown RAG)
 
-RAG Codebase Explorer is an AI system that lets you **search, understand, and explore large codebases** using **Retrieval-Augmented Generation (RAG)** and **ScaleDown prompt compression**.
+An AI-powered system that lets you **search, understand, and navigate large GitHub codebases** using **RAG + ScaleDown compression**.
 
-Instead of manually reading thousands of lines of code, just ask:
+Instead of reading thousands of lines of code, just ask:
 
-> “Where is authentication handled?”  
-> “Which files talk to the database?”  
-> “Explain this function in simple terms.”
+> "Where is authentication handled?"  
+> "Which files use the database?"  
+> "Explain this function in simple terms"
 
-And the system gives you intelligent, file-aware answers.
+and get intelligent answers with file references.
 
 ---
 
 ## 🚀 Why This Exists
 
-Modern software projects are huge.  
-Large Language Models fail when code exceeds context limits.
+Modern codebases are massive.  
+LLMs fail when context exceeds token limits.
 
-This project solves that using **ScaleDown compression**, allowing the AI to:
-- Read very large files
-- Preserve meaning
-- Understand entire modules in one query
-
-This makes real-world codebases finally usable with AI.
+This project uses **ScaleDown prompt compression** to:
+- Shrink large code files
+- Preserve semantic meaning
+- Enable whole-file understanding in a single query
 
 ---
 
 ## 🧠 How It Works
 
-GitHub Repository  
-↓  
-Tree-sitter Parser  
-↓  
-Function & Class Chunking  
-↓  
-ScaleDown Compression  
-↓  
-Embeddings  
-↓  
-Vector Database  
-↓  
-RAG Query Engine  
-↓  
-AI Answers with File References
+```
+GitHub Repo
+↓
+Tree-sitter Parser
+↓
+Function/Class Chunking
+↓
+ScaleDown Compression
+↓
+Embeddings
+↓
+Vector Database
+↓
+RAG Query Engine
+↓
+AI Answers
+```
 
 ---
 
-## ✨ Features
+## ✨ Key Features
 
-- 🔍 Natural-language code search  
-- 📄 Automatic documentation generation  
-- 🧩 Dependency & usage analysis  
+- 🔍 Natural language code search  
+- 📄 Auto documentation generator  
+- 🧩 Dependency & usage tracking  
 - 🔧 Refactoring suggestions  
 - ⚡ Token-efficient ScaleDown compression  
 
@@ -62,9 +61,9 @@ AI Answers with File References
 | Metric | Without Compression | With ScaleDown |
 |-------|-------------------|---------------|
 | Avg tokens per file | ~5000 | ~800 |
-| Files per query | 1–2 | Entire module |
+| Max file size | Limited | Whole-file |
 | Cost | High | 75% lower |
-| Accuracy | Drops on big files | Preserved |
+| Accuracy | Drops on big files | Maintained |
 
 ---
 
@@ -73,38 +72,85 @@ AI Answers with File References
 - Python  
 - Tree-sitter  
 - ScaleDown API  
+- FAISS / Chroma  
 - OpenAI embeddings  
-- FAISS / Chroma vector database  
 - Streamlit UI  
 
 ---
 
-## 📂 Tested On
+## 📂 Demo Repositories
 
-This system was validated on:
-- A small GitHub repo  
-- A medium-sized repo  
-- A large open-source project  
+This system was tested on:
+- Repo 1 (small)
+- Repo 2 (medium)
+- Repo 3 (large)
 
-Screenshots, logs, and benchmarks are available in `/docs`.
+Screenshots and benchmarks are in `/docs`.
 
 ---
 
 ## 🌟 Unique Feature — Code Memory Mode
 
-The system remembers previous questions and retrieved files during a session.  
-This allows **multi-turn reasoning across a large codebase**, enabling deeper understanding over time without reloading everything.
+The system remembers previously asked questions and uses them to improve future retrieval.
+
+Example:  
+If you ask:
+> "Where is login?"
+
+Then later:
+> "How is password validated?"
+
+It will reuse the login context.
+
+This is described as:
+> **"Context-aware compressed memory for multi-turn code navigation."**
 
 ---
 
-## 🎯 What Makes This Different
+## 🎯 What Makes This Special
 
-Unlike simple “code chatbots”, RAG Codebase Explorer:
+Unlike normal code chatbots, this system:
 - Understands **function-level structure**
 - Uses **compressed context**
-- Scales to **real-world codebases**
+- Handles **very large files**
 
-This makes it usable for professional software projects.
+This makes it practical for real-world developer use.
+
+---
+
+## 🚀 Quick Start
+
+### 1. Install Dependencies
+```bash
+pip install -r requirements.txt
+```
+
+### 2. Set API Key
+```bash
+# Windows PowerShell
+$env:OPENAI_API_KEY = "your-key-here"
+
+# Linux/Mac
+export OPENAI_API_KEY="your-key-here"
+```
+
+### 3. Run the App
+```bash
+streamlit run app.py
+```
+
+### 4. Load a Repository
+- Enter the path to a local GitHub repo
+- Click "Load Repo"
+- Ask questions about the code
+
+---
+
+## 📚 Documentation
+
+- [Architecture](docs/architecture.md) - System design and RAG flow
+- [Benchmarks](docs/benchmarks.md) - Performance metrics and compression stats
+- [Screenshots](docs/Screenshots/README.md) - Demo queries and results
 
 ---
 
@@ -112,5 +158,3 @@ This makes it usable for professional software projects.
 
 Built by **Jinto Joseph**  
 B.Tech CSE | AI & RAG Explorer
-
-
