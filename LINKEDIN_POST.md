@@ -24,6 +24,4 @@ Python, Streamlit, Sentence-Transformers, FAISS
 
 🔗 Code & docs:  https://lnkd.in/g5tc2R5M
 
-
-
 #RAG #DeveloperTools #BuildInPublic #AIEngineering #Python #OpenSource #GenAI #HPE #IntelUnnati
