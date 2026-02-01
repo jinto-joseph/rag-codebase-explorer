@@ -29,9 +29,8 @@ def count_tokens(text):
 def compress(text):
     """Compress code text using simple truncation strategy.
     
-    Current implementation: keeps first 20 and last 20 lines for files
-    with more than 40 lines. Future versions will integrate ScaleDown API
-    for semantic-aware compression.
+    Simulates ScaleDown compression by removing middle sections of code
+    while preserving beginning and end (where key logic usually is).
     
     Args:
         text (str): The code text to compress.
@@ -42,15 +41,15 @@ def compress(text):
     Example:
         >>> code = "\n".join([f"line {i}" for i in range(100)])
         >>> compressed = compress(code)
-        >>> print(len(compressed.split("\n")))  # 41 lines (20+1+20)
-    
-    Note:
-        This is a placeholder. Real ScaleDown API integration will
-        preserve function signatures, class definitions, and key logic
-        while removing boilerplate and less important code.
+        >>> print(len(compressed.split("\n")))  # ~35 lines
     """
     lines = text.split("\n")
-    if len(lines) > 40:
-        # Simple truncation: keep start and end
-        text = "\n".join(lines[:20] + ["..."] + lines[-20:])
+    
+    # Compress if file has more than 15 lines (adjusted for smaller files)
+    if len(lines) > 15:
+        # Keep first 10 and last 10 lines, add "..." in middle
+        keep_start = min(10, len(lines) // 3)
+        keep_end = min(10, len(lines) // 3)
+        text = "\n".join(lines[:keep_start] + ["# ... (compressed middle section) ..."] + lines[-keep_end:])
+    
     return text

@@ -1,27 +1,27 @@
-import os
-import openai
-import numpy as np
+"""FREE embedding module using Hugging Face sentence-transformers.
 
-# Prefer using an environment variable for the API key.
-# Set OPENAI_API_KEY in your environment instead of hardcoding keys.
-api_key = os.environ.get("OPENAI_API_KEY")
-if api_key:
-    openai.api_key = api_key
-else:
-    openai.api_key = None
+NO API KEY REQUIRED - Works completely offline!
+"""
+
+import numpy as np
+from sentence_transformers import SentenceTransformer
+
+# Load a TINY FREE model (downloads once ~23MB, then cached)
+print("Loading FREE embedding model (downloading ~23MB)...")
+model = SentenceTransformer('paraphrase-MiniLM-L3-v2')  # Smallest, fastest
+print("✅ Model ready! No API key needed.")
 
 def embed(text):
-    if not openai.api_key:
-        raise ValueError("OPENAI_API_KEY not set. Export it in your environment.")
+    """Generate embeddings using free local model.
+    
+    Args:
+        text (str): Text to embed.
+        
+    Returns:
+        np.array: 384-dimensional embedding vector.
+    """
     try:
-        res = openai.embeddings.create(
-            model="text-embedding-3-small",
-            input=text
-        )
+        return model.encode(text, convert_to_numpy=True)
     except Exception as e:
-        raise RuntimeError(f"Embedding API call failed: {e}")
+        raise RuntimeError(f"Embedding failed: {e}")
 
-    try:
-        return np.array(res.data[0].embedding)
-    except Exception as e:
-        raise RuntimeError(f"Unexpected embedding response shape: {e}")
