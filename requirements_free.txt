@@ -1,5 +1,0 @@
-sentence-transformers
-streamlit
-tiktoken
-faiss-cpu
-numpy

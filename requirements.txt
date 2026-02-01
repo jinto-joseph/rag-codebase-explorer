@@ -1,4 +1,5 @@
-openai
-faiss-cpu
-tiktoken
+sentence-transformers
 streamlit
+tiktoken
+faiss-cpu
+numpy

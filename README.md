@@ -80,14 +80,21 @@ AI Answers
 
 ## 📸 Demo
 
-![Compression Working](docs/Screenshots/03_compression_working.png)
-*Natural language code search with 65% token compression (393 → 138 tokens)*
+### Main Interface
+![Main Interface](docs/Screenshots/01_main_interface.png.png)
+*Clean, intuitive interface for code exploration*
 
-![Query Results](docs/Screenshots/05_query_authentication.png)
-*Semantic search finds relevant files instantly*
+### Loading Repository
+![Loading Repository](docs/Screenshots/02_loading_repo.png.png)
+*Simple path input to load any local GitHub repository*
 
-![Token Statistics](docs/Screenshots/06_token_statistics.png)
-*Token reduction across multiple files*
+### Compression in Action
+![Compression Working](docs/Screenshots/03_compression_working.png.png)
+*Query: "login" - Found authentication code with 65% token compression (393 → 138 tokens)*
+
+### Semantic Search Results
+![Database Query](docs/Screenshots/04_query_database.png.png)
+*Query: "Which files handle database queries?" - Intelligent file retrieval with compression (583 → 336 tokens)*
 
 ---
 
