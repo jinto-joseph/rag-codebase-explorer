@@ -134,10 +134,31 @@ GitHub repo in comments 👇
 
 ---
 
-## 📎 What to Attach
+## 📎 Screenshots for LinkedIn
 
-**Primary:** Screenshot #3 (compression working: 393 → 138)  
-**Alternative:** Screenshot #5 (authentication query results)
+### **Primary (MUST USE):**
+`docs/Screenshots/03_compression_working.png.png` 
+- Shows the "login" query
+- Displays **393 → 138 tokens** compression
+- Proves RAG + compression working together
+- BEST visual proof of your achievement!
+
+### **Alternative Options:**
+1. `docs/Screenshots/04_query_database.png.png`
+   - Shows semantic search finding related files
+   - Displays **583 → 336 tokens** compression
+   - Good for technical audience
+
+2. `docs/Screenshots/03_compression_working2.png.png`
+   - Another compression example
+   - Use if primary screenshot has any issues
+
+### **Recommendation:**
+**Use screenshot #3 (03_compression_working.png.png)** - it perfectly shows:
+- Natural language query working
+- Multiple relevant files found
+- Clear compression stats
+- Professional UI
 
 ---
 
