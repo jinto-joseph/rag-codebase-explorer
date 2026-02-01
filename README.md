@@ -111,18 +111,26 @@ Screenshots and benchmarks are in `/docs`.
 
 ## 🌟 Unique Feature — Code Memory Mode
 
-The system remembers previously asked questions and uses them to improve future retrieval.
+The system **remembers your previous queries** and automatically reuses context for smarter follow-up questions.
 
-Example:  
-If you ask:
-> "Where is login?"
+**How it works:**
 
-Then later:
-> "How is password validated?"
+1️⃣ **First query:** "Where is login handled?"
+   - System finds `auth.py` and stores it in memory
 
-It will reuse the login context.
+2️⃣ **Follow-up query:** "How is password validated?"
+   - System enhances your query with previous context: `"Previously searched: auth.py How is password validated?"`
+   - Returns more accurate results by understanding the conversation flow
 
-This is described as:
+**Features:**
+- 🧠 Tracks last 5 queries automatically
+- 🔄 Combines current question with previous file context
+- 📋 View query history in expandable panel
+- 🗑️ Clear memory button to start fresh
+- 💡 Visual indicator when memory is active
+
+**Result:** Natural, multi-turn conversations with your codebase while keeping token usage minimal.
+
 > **"Context-aware compressed memory for multi-turn code navigation."**
 
 ---
