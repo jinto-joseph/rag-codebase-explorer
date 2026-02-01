@@ -81,19 +81,19 @@ AI Answers
 ## 📸 Demo
 
 ### Main Interface
-![Main Interface](docs/Screenshots/01_main_interface.png.png)
+![Main Interface](docs/Screenshots/01_main_interface.png)
 *Clean, intuitive interface for code exploration*
 
 ### Loading Repository
-![Loading Repository](docs/Screenshots/02_loading_repo.png.png)
+![Loading Repository](docs/Screenshots/02_loading_repo.png)
 *Simple path input to load any local GitHub repository*
 
 ### Compression in Action
-![Compression Working](docs/Screenshots/03_compression_working.png.png)
+![Compression Working](docs/Screenshots/03_compression_working.png)
 *Query: "login" - Found authentication code with 65% token compression (393 → 138 tokens)*
 
 ### Semantic Search Results
-![Database Query](docs/Screenshots/04_query_database.png.png)
+![Database Query](docs/Screenshots/04_query_database.png)
 *Query: "Which files handle database queries?" - Intelligent file retrieval with compression (583 → 336 tokens)*
 
 ---
