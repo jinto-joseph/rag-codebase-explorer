@@ -26,9 +26,9 @@ git push -u origin main
 4. Main file path: `app.py`
 5. Click "Deploy"
 
-#### 3. Configure API Key (Optional)
+#### 3. Configure API Key (Recommended for AI Answers)
 
-The app already includes your API key as a fallback, but for better security:
+For AI-powered answers, add your Gemini API key:
 
 1. In your Streamlit Cloud dashboard, click on your app
 2. Click "⚙️ Settings"
@@ -36,10 +36,14 @@ The app already includes your API key as a fallback, but for better security:
 4. Add your API key in TOML format:
 
 ```toml
-GEMINI_API_KEY = "2tWXt6dZDZ1SYgd0RtNZi1U2I2JSIT0a2gAfiqJ7"
+GEMINI_API_KEY = "your_api_key_here"
 ```
 
 5. Click "Save"
+
+📖 Get a free key at: https://makersuite.google.com/app/apikey
+
+**Note:** The app works without an API key - it will show retrieved code files without AI-generated summaries.
 
 #### 4. Test Your Deployment
 
@@ -61,18 +65,47 @@ git clone https://github.com/yourusername/rag-codebase-explorer.git
 cd rag-codebase-explorer
 ```
 
-2. **Install dependencies**
+2. **Create virtual environment (recommended)**
+```bash
+python3 -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+```
+
+3. **Install dependencies**
 ```bash
 pip install -r requirements.txt
 ```
 
-3. **Run the app**
+4. **Configure API Key (optional)**
+Create a `.env` file in the project root:
+```bash
+echo "GEMINI_API_KEY=your_api_key_here" > .env
+```
+
+5. **Run the app**
 ```bash
 streamlit run app.py
 ```
 
-4. **Open in browser**
+6. **Open in browser**
 The app will automatically open at `http://localhost:8501`
+
+---
+
+## Configuration
+
+### Environment Variables
+
+The app uses **python-dotenv** to load environment variables from a `.env` file.
+
+**Supported variables:**
+- `GEMINI_API_KEY` - Your Google Gemini API key (optional, for AI answers)
+
+### Model Configuration
+
+- **AI Model:** gemini-1.5-flash (Google Gemini)
+- **Embeddings:** sentence-transformers/paraphrase-MiniLM-L3-v2 (FREE, offline)
+- **Vector Database:** FAISS
 
 ---
 

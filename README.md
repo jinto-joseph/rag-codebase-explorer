@@ -69,10 +69,12 @@ AI Answers
 
 ## 🛠 Tech Stack
 
-- Python  
-- Sentence-Transformers (FREE embeddings - no API key!)
-- FAISS vector database
-- Streamlit UI  
+- **Python 3.8+**
+- **Sentence-Transformers** (FREE embeddings - no API key!)
+- **FAISS** vector database
+- **Streamlit** UI
+- **Google Gemini API** (gemini-1.5-flash) - Optional for AI answers
+- **python-dotenv** for environment variable management
 - Smart compression algorithms
 - Tree-sitter (planned)
 
@@ -149,22 +151,44 @@ This makes it practical for real-world developer use.
 
 ## 🚀 Quick Start
 
-### 1. Install Dependencies
+### 1. Clone the Repository
+```bash
+git clone https://github.com/jinto-joseph/rag-codebase-explorer.git
+cd rag-codebase-explorer
+```
+
+### 2. Set Up Virtual Environment (Recommended)
+```bash
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### 3. Install Dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
 **No API keys needed!** Uses FREE offline embeddings.
 
-### 2. Run the App
+### 4. (Optional) Add Gemini API Key for AI Answers
+
+Create a `.env` file in the project root:
+```bash
+echo "GEMINI_API_KEY=your_api_key_here" > .env
+```
+
+📖 See [GET_API_KEY.md](GET_API_KEY.md) for detailed instructions.
+
+### 5. Run the App
 ```bash
 streamlit run app.py
 ```
 
-### 3. Load a Repository
-- Enter the path to a local GitHub repo
-- Click "Load Repo"
+### 6. Load a Repository
+- Enter a GitHub URL or local path
+- Click "Load Repository"
 - Ask questions about the code
+- Get AI-powered answers (with API key) or view retrieved code files
 
 ---
 

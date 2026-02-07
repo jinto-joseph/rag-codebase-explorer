@@ -45,17 +45,34 @@ $env:GEMINI_API_KEY = "YOUR_API_KEY_HERE"
 # Save and restart PowerShell
 ```
 
-### Option B: For Local Development (Mac/Linux)
+### Option B: For Local Development (Mac/Linux/Windows)
 
+**✨ Recommended: Using `.env` file (Works on all platforms)**
+
+1. Create a `.env` file in your project root:
 ```bash
-# Set environment variable
-export GEMINI_API_KEY="YOUR_API_KEY_HERE"
+echo "GEMINI_API_KEY=YOUR_API_KEY_HERE" > .env
+```
 
-# Run the app
+2. Run the app:
+```bash
 streamlit run app.py
 ```
 
-**Permanent:**
+The app automatically loads your API key from `.env`!
+
+**Alternative: Environment Variable (Temporary)**
+```bash
+# Mac/Linux
+export GEMINI_API_KEY="YOUR_API_KEY_HERE"
+streamlit run app.py
+
+# Windows (PowerShell)
+$env:GEMINI_API_KEY="YOUR_API_KEY_HERE"
+streamlit run app.py
+```
+
+**Permanent (Mac/Linux):**
 ```bash
 # Add to ~/.bashrc or ~/.zshrc
 echo 'export GEMINI_API_KEY="YOUR_API_KEY_HERE"' >> ~/.bashrc
@@ -97,7 +114,23 @@ GEMINI_API_KEY = "YOUR_API_KEY_HERE"
 Google's Gemini API free tier includes:
 - **60 requests per minute**
 - **1,500 requests per day**
-- **FREE forever** (as of Feb 2025)
+- **FREE forever** (as of Feb 2026)
+
+**Model Used:** `gemini-1.5-flash` (fast, efficient, great for code analysis)
+
+---
+
+## 🔒 Security Notes
+
+✅ **Your API key is safe:**
+- `.env` files are in `.gitignore` (never committed to GitHub)
+- Environment variables stay on your machine
+- Streamlit Cloud secrets are encrypted
+
+⚠️ **Never:**
+- Commit `.env` files to Git
+- Share your API key in public places
+- Hard-code API keys in your code
 
 This is more than enough for personal projects and learning!
 
