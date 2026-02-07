@@ -1,22 +1,27 @@
 """RAG (Retrieval-Augmented Generation) engine for code search.
 
 Provides vector-based semantic search over compressed code files
-using FAISS for efficient similarity matching.
+using FAISS for efficient similarity matching and Gemini AI for
+intelligent code understanding.
 """
 
 import faiss
 import numpy as np
 from embedder import embed
+from config import get_gemini_api_key
+from google import genai
 
 class CodeRAG:
     """Vector database and retrieval system for code navigation.
     
     Uses FAISS to index compressed code files and retrieve the most
     semantically similar files for a given natural language query.
+    Integrates with Gemini AI to generate intelligent answers.
     
     Attributes:
         texts (list): Stored file metadata (path, code, tokens).
         index (faiss.IndexFlatL2): FAISS vector index for similarity search.
+        gemini_model: Configured Gemini AI model for answer generation.
     
     Example:
         >>> rag = CodeRAG()
@@ -27,6 +32,21 @@ class CodeRAG:
     def __init__(self):
         self.texts = []
         self.index = None
+        
+        # Initialize Gemini AI (optional)
+        self.gemini_model = None
+        self.api_key_status = "not_configured"
+        
+        try:
+            api_key = get_gemini_api_key()
+            if api_key and len(api_key) > 20:
+                client = genai.Client(api_key=api_key)
+                self.gemini_model = client
+                self.api_key_status = "configured"
+            else:
+                self.api_key_status = "missing"
+        except Exception as e:
+            self.api_key_status = f"error: {str(e)}"
 
     def add(self, texts):
         """Add compressed code files to the vector database.
@@ -107,3 +127,56 @@ class CodeRAG:
                 seen.add(i)
                 results.append(self.texts[i])
         return results
+    
+    def generate_answer(self, query, context_files):
+        """Generate an intelligent answer using Gemini AI based on retrieved code context.
+        
+        Takes the user's question and relevant code files to generate a comprehensive
+        answer explaining where and how the functionality is implemented.
+        
+        Args:
+            query (str): User's natural language question about the codebase.
+            context_files (list[dict]): Retrieved code files with 'path' and 'compressed' keys.
+            
+        Returns:
+            tuple: (answer_text, has_ai_answer) - AI answer and boolean indicating if AI was used
+            
+        Example:
+            >>> results = rag.query("where is authentication?")
+            >>> answer, has_ai = rag.generate_answer("where is authentication?", results)
+            >>> print(answer)
+        """
+        if not self.gemini_model:
+            return None, False
+        
+        # Build context from retrieved files
+        context = "Here are the relevant code files:\n\n"
+        for i, file in enumerate(context_files, 1):
+            context += f"File {i}: {file['path']}\n```\n{file['compressed']}\n```\n\n"
+        
+        # Create prompt for Gemini
+        prompt = f"""You are a code documentation expert. Analyze the following code files and answer the user's question.
+
+User Question: {query}
+
+{context}
+
+Provide a clear, concise answer that:
+1. Directly answers the question
+2. References specific file names and locations
+3. Explains the implementation briefly
+4. Highlights key functions/classes involved
+
+Answer:"""
+        
+        try:
+            response = self.gemini_model.models.generate_content(
+                model='gemini-1.5-flash',
+                contents=prompt
+            )
+            return response.text, True
+        except Exception as e:
+            error_msg = str(e)
+            if "API_KEY_INVALID" in error_msg or "API key not valid" in error_msg:
+                return None, False
+            return f"⚠️ Error: {error_msg}", False

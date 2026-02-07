@@ -3,3 +3,6 @@ streamlit
 tiktoken
 faiss-cpu
 numpy
+google-genai
+gitpython
+python-dotenv
