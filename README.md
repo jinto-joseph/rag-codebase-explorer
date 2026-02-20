@@ -12,6 +12,20 @@ and get intelligent answers with file references.
 
 ---
 
+## 🆕 Recent Updates
+
+- **Stricter Face Recognition Security:**
+   - Thresholds tightened to prevent unauthorized recognition (0.18 similarity, 10/12 matches, outlier checks).
+   - Fixes previous issue where unregistered users could be recognized as the owner.
+- **Enhanced Registration & Recognition:**
+   - Higher camera resolution (1280x720), more samples, and quality validation.
+   - Visual feedback and metadata storage for registration.
+   - Improved recognition thresholds, real-time memory logging, and session management.
+   - Multi-level detection (CNN, HOG, DNN, Haar Cascade) and better error handling.
+   - Optimized performance and confidence calculation.
+
+See `temp_repos/_583824/STRICT_RECOGNITION_FIX.md` and `temp_repos/_583824/RECOGNITION_IMPROVEMENTS.md` for details.
+
 ## 🚀 Why This Exists
 
 Modern codebases are massive.  
