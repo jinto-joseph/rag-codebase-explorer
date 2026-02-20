@@ -7,7 +7,7 @@ Gemini AI is OPTIONAL - app works without it!
 import os
 from dotenv import load_dotenv
 
-# Load environment variables from .env file
+# Load environment variables from .env file for local development.
 load_dotenv()
 
 def get_gemini_api_key():

@@ -17,12 +17,19 @@ def test_imports():
         print("✅ FAISS")
         import tiktoken
         print("✅ Tiktoken")
-        import google.generativeai as genai
-        print("✅ Google Generative AI")
+        from google import genai
+        print("✅ Google GenAI SDK")
         import git
         print("✅ GitPython")
         import numpy
         print("✅ NumPy")
+        try:
+            import tree_sitter
+            print("✅ tree-sitter (optional)")
+            import tree_sitter_languages
+            print("✅ tree-sitter-languages (optional)")
+        except ImportError:
+            print("⚠️ tree-sitter packages not installed (optional); fallback parser will be used.")
         return True
     except ImportError as e:
         print(f"❌ Import error: {e}")

@@ -35,14 +35,29 @@ if "query_history" not in st.session_state:
     st.session_state["query_history"] = []
 if "context_memory" not in st.session_state:
     st.session_state["context_memory"] = []
+if "gemini_api_key" not in st.session_state:
+    st.session_state["gemini_api_key"] = _api_key or ""
 if "rag" not in st.session_state:
     st.session_state["rag"] = None
+if "assistant_rag" not in st.session_state:
+    st.session_state["assistant_rag"] = CodeRAG(api_key=st.session_state["gemini_api_key"])
 if "current_repo" not in st.session_state:
     st.session_state["current_repo"] = None
 
 # Sidebar for repository loading
 with st.sidebar:
     st.header("📂 Load Repository")
+    st.text_input("Gemini API Key (optional)", type="password", key="gemini_api_key")
+    if st.button("🔄 Reconnect Gemini", use_container_width=True):
+        st.session_state["assistant_rag"] = CodeRAG(api_key=st.session_state["gemini_api_key"])
+        if st.session_state["rag"] is not None:
+            old_texts = st.session_state["rag"].texts
+            new_rag = CodeRAG(api_key=st.session_state["gemini_api_key"])
+            new_rag.texts = old_texts
+            new_rag.index = st.session_state["rag"].index
+            st.session_state["rag"] = new_rag
+        st.success("Gemini status refreshed.")
+    st.caption(f"Gemini status: `{st.session_state['assistant_rag'].api_key_status}`")
     
     input_type = st.radio(
         "Choose input method:",
@@ -79,16 +94,25 @@ with st.sidebar:
                     if len(files) == 0:
                         st.error("No supported code files found in the repository.")
                     else:
-                        st.info(f"Found {len(files)} files. Processing...")
+                        st.info(f"Found {len(files)} structural chunks. Processing...")
                         
                         # Process and compress files
                         processed = []
                         progress_bar = st.progress(0)
                         
                         for idx, f in enumerate(files):
-                            compressed = compress(f["code"])
+                            compressed = compress(
+                                f["code"],
+                                imports=f.get("imports"),
+                                dependencies=f.get("dependencies"),
+                                surrounding=f.get("surrounding"),
+                            )
                             processed.append({
                                 "path": f["path"],
+                                "symbol": f.get("symbol", "module"),
+                                "chunk_type": f.get("chunk_type", "module"),
+                                "dependencies": f.get("dependencies", []),
+                                "language": f.get("language", "unknown"),
                                 "original_tokens": count_tokens(f["code"]),
                                 "compressed_tokens": count_tokens(compressed),
                                 "compressed": compressed
@@ -96,7 +120,7 @@ with st.sidebar:
                             progress_bar.progress((idx + 1) / len(files))
                         
                         # Build RAG index
-                        rag = CodeRAG()
+                        rag = CodeRAG(api_key=st.session_state["gemini_api_key"])
                         rag.add(processed)
                         
                         # Save to session state
@@ -111,7 +135,7 @@ with st.sidebar:
                         total_compressed = sum(f["compressed_tokens"] for f in processed)
                         compression_ratio = (1 - total_compressed / total_original) * 100 if total_original > 0 else 0
                         
-                        st.success(f"✅ Loaded {len(processed)} files")
+                        st.success(f"✅ Loaded {len(processed)} chunks")
                         st.metric("Compression", f"{compression_ratio:.1f}%", 
                                  help=f"{total_original} → {total_compressed} tokens")
                     
@@ -192,8 +216,34 @@ if st.session_state.get("rag") is None:
         - "Explain the main function"
         - "Find the API endpoints"
         """)
+
+    st.divider()
+    st.markdown("### 🤖 Ask About This App")
+    general_query = st.text_input(
+        "Need help running or using this tool?",
+        placeholder="How do I run this app locally?",
+        key="general_query_input"
+    )
+    if st.button("💡 Ask Gemini", key="ask_general_help") and general_query:
+        with st.spinner("Getting answer..."):
+            answer, has_ai = st.session_state["assistant_rag"].generate_general_answer(general_query)
+            if has_ai and answer:
+                st.markdown(answer)
+            else:
+                st.info("Gemini answer is unavailable right now. Try setting `GEMINI_API_KEY` in environment variables.")
 else:
     # Query interface
+    mode_label_to_key = {
+        "Explain Code": "explain",
+        "Auto Documentation": "documentation",
+        "Dependency Analysis": "dependencies",
+        "Refactoring Suggestions": "refactor",
+    }
+    analysis_mode_label = st.selectbox(
+        "🎯 Analysis Mode",
+        list(mode_label_to_key.keys()),
+        index=0,
+    )
     query = st.text_input(
         "💬 Ask about the code",
         placeholder="Where is authentication handled?",
@@ -229,7 +279,11 @@ else:
             results = st.session_state["rag"].query(enhanced_query)
             
             # Generate AI answer if API key is available
-            answer, has_ai = st.session_state["rag"].generate_answer(query, results)
+            answer, has_ai = st.session_state["rag"].generate_answer(
+                query,
+                results,
+                mode=mode_label_to_key[analysis_mode_label],
+            )
             
             # Update memory
             st.session_state["query_history"].append(query)
@@ -246,21 +300,41 @@ else:
                 st.markdown("### 🤖 AI Answer")
                 st.markdown(answer)
                 st.divider()
+            elif answer == "QUOTA_EXHAUSTED":
+                st.warning("Gemini quota is currently exhausted (429). Showing a local fallback answer.")
+                st.markdown(
+                    st.session_state["rag"].generate_local_mode_answer(
+                        query,
+                        results,
+                        mode=mode_label_to_key[analysis_mode_label],
+                    )
+                )
+                st.divider()
             elif answer and not has_ai:
                 # Show error if there was one
                 st.warning(answer)
                 st.divider()
             else:
-                # No API key configured
-                st.info("💡 **AI answers not available** - Add a [FREE Gemini API key](https://makersuite.google.com/app/apikey) to get intelligent explanations. For now, here are the relevant code files:")
+                st.markdown(
+                    st.session_state["rag"].generate_local_mode_answer(
+                        query,
+                        results,
+                        mode=mode_label_to_key[analysis_mode_label],
+                    )
+                )
+                st.info("💡 **AI answers not available** - Reconnect Gemini from sidebar. Showing retrieved code chunks below.")
                 st.divider()
             
             # Display retrieved files
-            st.markdown("### 📚 Retrieved Code Files")
+            st.markdown("### 📚 Retrieved Code Chunks")
             
             for idx, r in enumerate(results, 1):
-                with st.expander(f"📄 {r['path']}", expanded=(idx == 1)):
-                    st.code(r["compressed"], language="python")
+                symbol = r.get("symbol", "module")
+                chunk_type = r.get("chunk_type", "chunk")
+                with st.expander(f"📄 {r['path']} :: {symbol} ({chunk_type})", expanded=(idx == 1)):
+                    st.code(r["compressed"], language=r.get("language", "python"))
+                    if r.get("dependencies"):
+                        st.caption(f"Dependencies: {', '.join(r['dependencies'][:10])}")
                     
                     col1, col2, col3 = st.columns(3)
                     with col1:

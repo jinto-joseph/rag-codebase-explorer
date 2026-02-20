@@ -10,6 +10,7 @@ import shutil
 import tempfile
 from urllib.parse import urlparse
 from config import DEFAULT_CLONE_DIR, SUPPORTED_EXTENSIONS, MAX_FILES_TO_PROCESS
+from code_parser import parse_code_chunks
 
 def is_github_url(path):
     """Check if the provided path is a GitHub URL.
@@ -117,10 +118,25 @@ def load_repo(path):
                     with open(full, "r", encoding="utf-8") as file:
                         # Get relative path for cleaner display
                         rel_path = os.path.relpath(full, actual_path)
-                        files.append({
-                            "path": rel_path,
-                            "code": file.read()
-                        })
+                        code = file.read()
+                        try:
+                            chunks = parse_code_chunks(rel_path, code)
+                        except Exception:
+                            chunks = []
+
+                        if chunks:
+                            files.extend(chunks)
+                        else:
+                            files.append({
+                                "path": rel_path,
+                                "symbol": "module",
+                                "chunk_type": "module",
+                                "code": code,
+                                "imports": [],
+                                "dependencies": [],
+                                "surrounding": [],
+                                "language": "unknown",
+                            })
                         file_count += 1
                 except Exception as e:
                     # Silently skip files with encoding issues

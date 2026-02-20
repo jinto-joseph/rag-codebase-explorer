@@ -26,30 +26,69 @@ def count_tokens(text):
     enc = tiktoken.get_encoding("cl100k_base")
     return len(enc.encode(text))
 
-def compress(text):
-    """Compress code text using simple truncation strategy.
-    
-    Simulates ScaleDown compression by removing middle sections of code
-    while preserving beginning and end (where key logic usually is).
-    
+def _trim_code_body(code, target_tokens):
+    """Trim a code body while retaining both signature-side and return-side context."""
+    lines = code.split("\n")
+    if len(lines) <= 40:
+        return code
+
+    head = min(35, max(10, len(lines) // 4))
+    tail = min(35, max(10, len(lines) // 4))
+    trimmed = "\n".join(lines[:head] + ["# ... scaledown middle omitted ..."] + lines[-tail:])
+
+    if count_tokens(trimmed) <= target_tokens:
+        return trimmed
+
+    # tighter fallback
+    head = min(20, len(lines) // 3)
+    tail = min(20, len(lines) // 3)
+    return "\n".join(lines[:head] + ["# ... scaledown middle omitted ..."] + lines[-tail:])
+
+
+def compress(text, imports=None, dependencies=None, surrounding=None, target_tokens=800):
+    """ScaleDown-style compression preserving structural and dependency context.
+
     Args:
-        text (str): The code text to compress.
-        
+        text (str): Core symbol code (function/class/module body).
+        imports (list[str] | None): Related import statements.
+        dependencies (list[str] | None): Related symbol references.
+        surrounding (list[str] | None): Nearby function/class names.
+        target_tokens (int): Approximate token budget per chunk.
+
     Returns:
-        str: Compressed version of the text.
-        
-    Example:
-        >>> code = "\n".join([f"line {i}" for i in range(100)])
-        >>> compressed = compress(code)
-        >>> print(len(compressed.split("\n")))  # ~35 lines
+        str: Context-preserving compressed chunk.
     """
-    lines = text.split("\n")
-    
-    # Compress if file has more than 15 lines (adjusted for smaller files)
-    if len(lines) > 15:
-        # Keep first 10 and last 10 lines, add "..." in middle
-        keep_start = min(10, len(lines) // 3)
-        keep_end = min(10, len(lines) // 3)
-        text = "\n".join(lines[:keep_start] + ["# ... (compressed middle section) ..."] + lines[-keep_end:])
-    
-    return text
+    imports = imports or []
+    dependencies = dependencies or []
+    surrounding = surrounding or []
+
+    core = _trim_code_body(text, max(300, target_tokens - 250))
+    sections = []
+
+    if imports:
+        sections.append("## Imports\n" + "\n".join(imports[:15]))
+    if dependencies:
+        sections.append("## Dependencies\n" + ", ".join(dependencies[:15]))
+    if surrounding:
+        sections.append("## Surrounding Symbols\n" + ", ".join(surrounding[:6]))
+    sections.append("## Core Code\n" + core)
+
+    compressed = "\n\n".join(sections)
+
+    if count_tokens(compressed) <= target_tokens:
+        return compressed
+
+    # Secondary pass: reduce context lists before shrinking core further.
+    reduced_imports = imports[:8]
+    reduced_dependencies = dependencies[:8]
+    reduced_surrounding = surrounding[:4]
+    core = _trim_code_body(text, max(220, target_tokens - 180))
+    sections = []
+    if reduced_imports:
+        sections.append("## Imports\n" + "\n".join(reduced_imports))
+    if reduced_dependencies:
+        sections.append("## Dependencies\n" + ", ".join(reduced_dependencies))
+    if reduced_surrounding:
+        sections.append("## Surrounding Symbols\n" + ", ".join(reduced_surrounding))
+    sections.append("## Core Code\n" + core)
+    return "\n\n".join(sections)

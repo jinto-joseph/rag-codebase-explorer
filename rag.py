@@ -29,19 +29,19 @@ class CodeRAG:
         >>> results = rag.query("where is authentication?")
         >>> print(results[0]['path'])
     """
-    def __init__(self):
+    def __init__(self, api_key=None):
         self.texts = []
         self.index = None
+        self.default_model = "gemini-2.0-flash"
         
         # Initialize Gemini AI (optional)
         self.gemini_model = None
         self.api_key_status = "not_configured"
         
         try:
-            api_key = get_gemini_api_key()
+            api_key = api_key or get_gemini_api_key()
             if api_key and len(api_key) > 20:
-                client = genai.Client(api_key=api_key)
-                self.gemini_model = client
+                self.gemini_model = genai.Client(api_key=api_key)
                 self.api_key_status = "configured"
             else:
                 self.api_key_status = "missing"
@@ -115,8 +115,8 @@ class CodeRAG:
             ...     print(f"{r['path']}: {r['compressed_tokens']} tokens")
         """
         qv = embed(q)
-        # Request up to 3 results, but handle repos with fewer files
-        k = min(3, len(self.texts))
+        # Request up to 5 results, but handle repos with fewer chunks
+        k = min(5, len(self.texts))
         D, I = self.index.search(np.array([qv]).astype("float32"), k)
         
         # Remove duplicates (FAISS may return same index multiple times)
@@ -128,7 +128,54 @@ class CodeRAG:
                 results.append(self.texts[i])
         return results
     
-    def generate_answer(self, query, context_files):
+    def _build_usage_context(self):
+        """Provide built-in project usage context for general help questions."""
+        return (
+            "Project quick usage guide:\n"
+            "1. Install dependencies with: pip install -r requirements.txt\n"
+            "2. Start app with: streamlit run app.py\n"
+            "3. In sidebar, choose GitHub URL or Local Path.\n"
+            "4. Load repository and ask code questions.\n"
+            "5. For cloud deployment, prefer GitHub URL input.\n"
+        )
+
+    def _call_gemini(self, prompt):
+        """Call Gemini and normalize error handling."""
+        try:
+            response = self.gemini_model.models.generate_content(
+                model=self.default_model,
+                contents=prompt,
+            )
+            return response.text, True
+        except Exception as e:
+            error_msg = str(e)
+            if "API_KEY_INVALID" in error_msg or "API key not valid" in error_msg:
+                return None, False
+            if "RESOURCE_EXHAUSTED" in error_msg or "quota" in error_msg.lower():
+                return "QUOTA_EXHAUSTED", False
+            return f"⚠️ Error: {error_msg}", False
+
+    def _mode_instruction(self, mode):
+        if mode == "documentation":
+            return (
+                "Generate concise auto-documentation. Include purpose, inputs, outputs, and "
+                "example usage for the most relevant symbols."
+            )
+        if mode == "dependencies":
+            return (
+                "Perform dependency analysis. Describe imports, symbol dependencies, and "
+                "cross-symbol relationships in plain language."
+            )
+        if mode == "refactor":
+            return (
+                "Provide refactoring suggestions. Identify complexity hotspots, duplicated "
+                "patterns, and give safe, practical improvements."
+            )
+        return (
+            "Explain implementation clearly. Focus on where logic lives and how key symbols work."
+        )
+
+    def generate_answer(self, query, context_files, mode="explain"):
         """Generate an intelligent answer using Gemini AI based on retrieved code context.
         
         Takes the user's question and relevant code files to generate a comprehensive
@@ -149,34 +196,97 @@ class CodeRAG:
         if not self.gemini_model:
             return None, False
         
-        # Build context from retrieved files
-        context = "Here are the relevant code files:\n\n"
+        # Build context from retrieved chunks
+        context = "Here are the relevant code chunks:\n\n"
         for i, file in enumerate(context_files, 1):
-            context += f"File {i}: {file['path']}\n```\n{file['compressed']}\n```\n\n"
+            symbol = file.get("symbol", "module")
+            chunk_type = file.get("chunk_type", "chunk")
+            deps = ", ".join(file.get("dependencies", [])[:8]) or "none"
+            context += (
+                f"Chunk {i}: {file['path']}::{symbol} ({chunk_type})\n"
+                f"Dependencies: {deps}\n"
+                f"```\n{file['compressed']}\n```\n\n"
+            )
+        context += self._build_usage_context()
         
         # Create prompt for Gemini
-        prompt = f"""You are a code documentation expert. Analyze the following code files and answer the user's question.
+        prompt = f"""You are a code intelligence assistant for large repositories.
 
 User Question: {query}
+Mode: {mode}
 
 {context}
 
 Provide a clear, concise answer that:
 1. Directly answers the question
-2. References specific file names and locations
-3. Explains the implementation briefly
-4. Highlights key functions/classes involved
+2. References specific file names and symbols
+3. Highlights key functions/classes/modules involved
+4. Follows this mode-specific instruction: {self._mode_instruction(mode)}
 
 Answer:"""
         
-        try:
-            response = self.gemini_model.models.generate_content(
-                model='gemini-1.5-flash',
-                contents=prompt
+        return self._call_gemini(prompt)
+
+    def generate_general_answer(self, query):
+        """Answer general project questions (e.g. setup/run/deploy) without repo context."""
+        if not self.gemini_model:
+            return None, False
+
+        prompt = f"""You are a helpful assistant for this Streamlit project.
+
+User Question: {query}
+
+{self._build_usage_context()}
+
+Answer with practical steps. If the question asks "how to run", include exact commands.
+"""
+        return self._call_gemini(prompt)
+
+    def generate_local_documentation(self, context_files):
+        """Generate a non-LLM documentation fallback from retrieved chunks."""
+        lines = ["### 📘 Auto Documentation (Local Fallback)"]
+        for item in context_files[:5]:
+            path = item.get("path", "unknown")
+            symbol = item.get("symbol", "module")
+            chunk_type = item.get("chunk_type", "chunk")
+            deps = item.get("dependencies", [])
+            lines.append(f"- **{path} :: {symbol}** ({chunk_type})")
+            if deps:
+                lines.append(f"  - Dependencies: {', '.join(deps[:8])}")
+            lines.append(f"  - Purpose: likely implements `{symbol}` behavior in `{path}`.")
+            lines.append("  - Inputs/Outputs: inspect the code chunk below for exact signature and returns.")
+        return "\n".join(lines)
+
+    def generate_local_mode_answer(self, query, context_files, mode="explain"):
+        """Generate local fallback answer for all analysis modes."""
+        if mode == "documentation":
+            return self.generate_local_documentation(context_files)
+
+        top = context_files[:5]
+        if mode == "dependencies":
+            lines = ["### 🔗 Dependency Analysis (Local Fallback)"]
+            for item in top:
+                deps = item.get("dependencies", [])
+                dep_text = ", ".join(deps[:10]) if deps else "No explicit local symbol dependencies detected."
+                lines.append(f"- `{item.get('path')}::{item.get('symbol', 'module')}` → {dep_text}")
+            return "\n".join(lines)
+
+        if mode == "refactor":
+            lines = ["### 🛠 Refactoring Suggestions (Local Fallback)"]
+            lines.append("- Break very large modules into smaller focused files/classes.")
+            lines.append("- Add clearer function-level docstrings for top retrieved symbols.")
+            lines.append("- Reduce cross-module coupling for symbols with many dependencies.")
+            for item in top[:3]:
+                lines.append(f"- Candidate file: `{item.get('path')}` symbol `{item.get('symbol', 'module')}`.")
+            return "\n".join(lines)
+
+        lines = ["### 🧠 Explanation (Local Fallback)"]
+        lines.append(f"Question: {query}")
+        lines.append("Most relevant code locations:")
+        for item in top:
+            lines.append(
+                f"- `{item.get('path')}::{item.get('symbol', 'module')}` "
+                f"({item.get('chunk_type', 'chunk')})"
             )
-            return response.text, True
-        except Exception as e:
-            error_msg = str(e)
-            if "API_KEY_INVALID" in error_msg or "API key not valid" in error_msg:
-                return None, False
-            return f"⚠️ Error: {error_msg}", False
+        lines.append("Use the chunks below to inspect implementation details.")
+        return "\n".join(lines)
