@@ -105,7 +105,7 @@ AI Answers
 *Simple path input to load any local GitHub repository*
 
 ### Compression in Action
-![Compression Working](docs/Screenshots/03_compression_working.png?raw=true)
+![Compression Working](docs/Screenshots/03_compression_working2.png?raw=true)
 *Query: "login" - Found authentication code with 65% token compression (393 → 138 tokens)*
 
 ### Semantic Search Results
