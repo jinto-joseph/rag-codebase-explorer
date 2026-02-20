@@ -217,4 +217,4 @@ streamlit run app.py
 ## 📌 Author
 
 Built by **Jinto Joseph**  
-B.Tech CSE | AI & RAG Explorer
+B.Tech CSE 
